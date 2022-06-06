@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bierza.Server", "Bierza.Server\Bierza.Server.csproj", "{75BEF25F-B163-4C03-82A6-B34304BC5592}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bierza.Data", "Bierza.Data\Bierza.Data.csproj", "{163FAC36-6356-4A34-84A9-5559B849F903}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bierza.Data.Test", "Bierza.Data.Test\Bierza.Data.Test.csproj", "{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75BEF25F-B163-4C03-82A6-B34304BC5592}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75BEF25F-B163-4C03-82A6-B34304BC5592}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75BEF25F-B163-4C03-82A6-B34304BC5592}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75BEF25F-B163-4C03-82A6-B34304BC5592}.Release|Any CPU.Build.0 = Release|Any CPU
+		{163FAC36-6356-4A34-84A9-5559B849F903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{163FAC36-6356-4A34-84A9-5559B849F903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{163FAC36-6356-4A34-84A9-5559B849F903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{163FAC36-6356-4A34-84A9-5559B849F903}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
