@@ -1,94 +1,102 @@
+using Bierza.Business.UserManagement;
 using Bierza.Data.Models;
-using Bierza.Data.PasswordUtils;
 using Bierza.Data.Users;
-using Microsoft.Extensions.Options;
 
 namespace Bierza.Data.Test;
 
-public class UserCommandsTests : IClassFixture<DatabaseFixture>
+public class UserCommandsTests : IDisposable 
 {
-    private readonly DatabaseFixture _databaseFixture;
+    private readonly SharedFixture _sharedFixture;
     private readonly UserCommands _userCommands;
 
     private static CancellationTokenSource _cancellationTokenSource = null!;
     
-    public UserCommandsTests(DatabaseFixture fixture)
+    public UserCommandsTests()
     {
-        _databaseFixture = fixture;
+        _sharedFixture = new();
 
-        IPasswordHasher passwordHasher = new PasswordHasher(new OptionsWrapper<HashingOptions>(new HashingOptions()));
-
-        _userCommands = new UserCommands(_databaseFixture.DbContext, passwordHasher);
+        _userCommands = new UserCommands(_sharedFixture.DbContext);
 
         _cancellationTokenSource = new CancellationTokenSource();
     }
+
+    public void Dispose()
+    {
+        Dispose(true);
+    }
+
+    private bool _disposed = false;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        if (disposing)
+        {
+            this._sharedFixture.Dispose();
+        }
+
+        this._disposed = true;
+    }
     
-    [Fact]
     public async Task CanCreateUser()
     {
         // Arrange
-        UserCreateModel model = new("User1", "Test", "Password");
+        UserCreateModel model = new("User1", "Test",  "Password");
         CancellationToken token = _cancellationTokenSource.Token;
         
         // Act
-        Status<UserCommandResult, Guid> result = await _userCommands.CreateUser(model, token);
+        Guid userid = await _userCommands.CreateUser(model, token); 
         
         // Assert
-        Assert.True(result.Code == UserCommandResult.Ok);
-        
-        // Cleanup
-        await _userCommands.DeleteUser(result.Data, token);
+        userid.ShouldNotBe(Guid.Empty);
     }
     
-    [Fact]
+    
     public async Task CannotCreateUserThatAlreadyExists()
     {
         // Arrange
-        UserCreateModel model = new("User1", "Test", "Password");
+        UserCreateModel model = new("User1", "Test",  "Password");
         CancellationToken token = _cancellationTokenSource.Token;
         
-        Status<UserCommandResult, Guid> result1 = await _userCommands.CreateUser(model, token);
+        Guid userid1 = await _userCommands.CreateUser(model, token);
 
-        Assert.True(result1.Code == UserCommandResult.Ok);
-        
         // Act
-        Status<UserCommandResult, Guid> result2 = await _userCommands.CreateUser(model, token);
+        Task<Guid> task = _userCommands.CreateUser(model, token);
         
         // Assert
-        Assert.True(result2.Code == UserCommandResult.DatabaseError);
-        
-        // Cleanup
-        await _userCommands.DeleteUser(result1.Data, token);
+        await Should.ThrowAsync<UserDataException>(() => task);
     }
 
-    [Fact]
+    
     public async Task CanDeleteUserThatExists()
     {
         // Arrange
-        UserCreateModel model = new("User1", "Test", "Password");
+        UserCreateModel model = new("User1", "Test",  "Password");
         CancellationToken token = _cancellationTokenSource.Token;
         
-        Status<UserCommandResult, Guid> result = await _userCommands.CreateUser(model, token);
+        Guid userid = await _userCommands.CreateUser(model, token);
 
-        Assert.True(result.Code == UserCommandResult.Ok);
-        
         // Act
-        var deleteResult = await _userCommands.DeleteUser(result.Data, token);
-
+        var task = _userCommands.DeleteUser(userid, token);
+        
         // Assert
-        Assert.True(deleteResult.Code == UserCommandResult.Ok);
+        await Should.NotThrowAsync(() => task);
     }
     
-    [Fact]
+    
     public async Task CannotDeleteUserThatDoesntExists()
     {
         // Arrange
         CancellationToken token = _cancellationTokenSource.Token;
         
         // Act
-        var deleteResult = await _userCommands.DeleteUser(Guid.NewGuid(), token);
+        var deleteTask = _userCommands.DeleteUser(Guid.NewGuid(), token);
 
         // Assert
-        Assert.True(deleteResult.Code == UserCommandResult.UserNotFound);
+        await Should.ThrowAsync<UserDataException>(async () => await deleteTask);
     }
 }

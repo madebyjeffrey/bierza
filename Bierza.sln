@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bierza.Data", "Bierza.Data\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bierza.Data.Test", "Bierza.Data.Test\Bierza.Data.Test.csproj", "{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bierza.Business", "Bierza.Business\Bierza.Business.csproj", "{7DD860CD-AF7D-49DB-8337-FDB6205DA571}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F31168A6-0B2B-4CD2-A396-2CE9C2A8A432}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DD860CD-AF7D-49DB-8337-FDB6205DA571}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DD860CD-AF7D-49DB-8337-FDB6205DA571}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DD860CD-AF7D-49DB-8337-FDB6205DA571}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DD860CD-AF7D-49DB-8337-FDB6205DA571}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,58 +1,45 @@
-﻿using Bierza.Data.Models;
-using Bierza.Data.PasswordUtils;
+﻿using Bierza.Business.UserManagement;
+using Bierza.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bierza.Data.Users;
 
-public enum UserCommandResult
-{
-    Ok,
-    IncorrectEntityCount,
-    DatabaseError,
-    OperationCancelled,
-    UserNotFound,
-    ExpectedNoUsers,
-    ConflictOnRename
-}
-
-public class UserCommands
+public class UserCommands : IUserCommands
 {
     private readonly DataDbContext _context;
-    private readonly IPasswordHasher _passwordHasher;
 
-    public UserCommands(DataDbContext context, IPasswordHasher passwordHasher)
+    public UserCommands(DataDbContext context)
     {
         this._context = context;
-        this._passwordHasher = passwordHasher;
     }
 
-    public async Task<Status<UserCommandResult, Guid>> CreateUser(UserCreateModel model,
+    public async Task<Guid> CreateUser(UserCreateModel model,
         CancellationToken token)
     {
         try
         {
             var user = this._context.Users.Add(new User()
             {
-                UserName = model.UserName,
-                Password = _passwordHasher.Hash(model.Password),
-                Role = model.Role
+                Email = model.Email.ToLower(),
+                DisplayName = model.DisplayName,
+                Password = model.Password,
             });
 
-            var result = await this._context.SaveChangesAsync(token);
+            await this._context.SaveChangesAsync(token);
 
-            return result == 1 ? (UserCommandResult.Ok, user.Entity.Id) : UserCommandResult.IncorrectEntityCount;
+            return user.Entity.Id;
         }
         catch (Exception e) when (e is DbUpdateException or DbUpdateConcurrencyException)
         {
-            return UserCommandResult.DatabaseError;
+            throw new UserDataException("Database Error, possibly duplicate user?", e);
         }
         catch (Exception e) when (e is OperationCanceledException)
         {
-            return UserCommandResult.OperationCancelled;
+            throw new UserDataException("Operation Cancelled", e);
         }
     }
 
-    public async Task<Status<UserCommandResult>> DeleteUser(Guid id, CancellationToken token)
+    public async Task DeleteUser(Guid id, CancellationToken token)
     {
         try
         {
@@ -62,105 +49,50 @@ public class UserCommands
 
             this._context.Users.Remove(user);
 
-            var count = await this._context.SaveChangesAsync(token);
-
-            if (count != 1)
-            {
-                return UserCommandResult.IncorrectEntityCount;
-            }
-
-            return UserCommandResult.Ok; 
+            await this._context.SaveChangesAsync(token);
         }
         catch (Exception e) when (e is InvalidOperationException)
         {
-            return UserCommandResult.UserNotFound;
+            throw new UserDataException("User not found", e);
         }
         catch (Exception e) when (e is DbUpdateException or DbUpdateConcurrencyException)
         {
-            return UserCommandResult.DatabaseError;
+            throw new UserDataException("Database Error", e);
         }
         catch (Exception e) when (e is OperationCanceledException)
         {
-            return UserCommandResult.OperationCancelled;
+            throw new UserDataException("Operation Cancelled", e);
         }
     }
     
-    public async Task<UserCommandResult> UpdateUserPassword(UserPasswordUpdateModel model, CancellationToken token)
+    public async Task UpdateUser(User user, CancellationToken token)
     {
         try
         {
-            var result = this._context.Users.Where(x => x.Id == model.Id);
+            var result = this._context.Users.Where(x => x.Id == user.Id);
             
-            var user = await result.SingleAsync(token);
+            var oldUser = await result.SingleAsync(token);
 
-            user.Password = _passwordHasher.Hash(model.Password);
+            oldUser.Activated = user.Activated;
+            oldUser.Email = user.Email;
+            oldUser.Password = user.Password;
+            oldUser.Roles = user.Roles.ToArray();
+            oldUser.DisplayName = user.DisplayName;
+            oldUser.ValidatedEmail = user.ValidatedEmail;
 
             var count = await this._context.SaveChangesAsync(token);
-
-            if (count != 1)
-            {
-                return UserCommandResult.IncorrectEntityCount;
-            }
-
-            return UserCommandResult.Ok; 
         }
         catch (Exception e) when (e is InvalidOperationException)
         {
-            return UserCommandResult.UserNotFound;
+            throw new UserDataException("User not found", e);
         }
         catch (Exception e) when (e is DbUpdateException or DbUpdateConcurrencyException)
         {
-            return UserCommandResult.DatabaseError;
+            throw new UserDataException("Database error", e);
         }
         catch (Exception e) when (e is OperationCanceledException)
         {
-            return UserCommandResult.OperationCancelled;
-        }
-    }
-    
-    public async Task<UserCommandResult> UpdateUser(UserUpdateModel model, CancellationToken token)
-    {
-        try
-        {
-            var result = this._context.Users.Where(x => x.Id == model.Id);
-
-            var user = await result.SingleAsync(token);
-
-            // Check to see if renaming the user would conflict with an existing user
-            if (!user.UserName.Equals(model.UserName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                var users = this._context.Users.Where(x => x.UserName == model.UserName).AsNoTracking();
-
-                if (await users.CountAsync(token) != 0)
-                {
-                    return UserCommandResult.ConflictOnRename;
-                }
-            }
-
-            // username can change if required
-            user.UserName = model.UserName;
-            user.Role = model.Role;
-
-            var count = await this._context.SaveChangesAsync(token);
-
-            if (count != 1)
-            {
-                return UserCommandResult.IncorrectEntityCount;
-            }
-
-            return UserCommandResult.Ok;
-        }
-        catch (Exception e) when (e is InvalidOperationException)
-        {
-            return UserCommandResult.UserNotFound;
-        }
-        catch (Exception e) when (e is DbUpdateException or DbUpdateConcurrencyException)
-        {
-            return UserCommandResult.DatabaseError;
-        }
-        catch (Exception e) when (e is OperationCanceledException)
-        {
-            return UserCommandResult.OperationCancelled;
+            throw new UserDataException("Operation cancelled", e);
         }
     }
 }

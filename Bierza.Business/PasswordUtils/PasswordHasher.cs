@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using Microsoft.Extensions.Options;
 
-namespace Bierza.Data.PasswordUtils;
+namespace Bierza.Business.PasswordUtils;
 
 public sealed class PasswordHasher : IPasswordHasher
 {

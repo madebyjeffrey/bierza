@@ -1,4 +1,4 @@
-﻿namespace Bierza.Data.PasswordUtils;
+﻿namespace Bierza.Business.PasswordUtils;
 
 public class HashingOptions
 {

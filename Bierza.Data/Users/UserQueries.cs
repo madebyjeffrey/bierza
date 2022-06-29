@@ -1,5 +1,5 @@
-﻿using Bierza.Data.Models;
-using Bierza.Data.PasswordUtils;
+﻿using Bierza.Business.UserManagement;
+using Bierza.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bierza.Data.Users;
@@ -12,71 +12,78 @@ public enum UserQueryResult
     OperationCancelled
 }
 
-public class UserQueries
+public class UserQueries : IUserQueries
 {
     private readonly DataDbContext _context;
-    private readonly IPasswordHasher _passwordHasher;
 
-    public UserQueries(DataDbContext context, IPasswordHasher passwordHasher)
+    public UserQueries(DataDbContext context)
     {
         this._context = context;
-        this._passwordHasher = passwordHasher;
     }
 
-    public async Task<Status<UserQueryResult, UserValidationModel>> ValidateUser(ValidateUserModel model,
-        CancellationToken token)
+    public async Task<User> GetUserByGuid(Guid guid, CancellationToken token)
     {
         try
         {
-            var result = this._context.Users.Where(x => x.UserName == model.UserName).AsNoTracking();
+            var result = await this._context.Users
+                .Where(x => x.Id == guid)
+                .AsNoTracking()
+                .SingleAsync(token);
 
-            if (await result.CountAsync(token) != 1)
+            result.Roles ??= Array.Empty<Role>();
+
+            return result;
+        }
+        catch (Exception e) when (e is InvalidOperationException)
+        {
+            throw new UserDataException("No User Found", e);
+        }
+        catch (Exception e) when (e is OperationCanceledException)
+        {
+            throw new UserDataException("Operation Cancelled", e);
+        }
+    }
+
+    public async Task<User> GetUserByEmail(string email, CancellationToken token)
+    {
+        try
+        {
+            var result = await this._context.Users
+                .Where(x => x.Email.Equals(email.ToLower()))
+                .AsNoTracking()
+                .SingleAsync(token);
+
+            result.Roles ??= Array.Empty<Role>();
+            
+            return result;
+        }
+        catch (Exception e) when (e is InvalidOperationException)
+        {
+            throw new UserDataException("No User Found", e);
+        }
+        catch (Exception e) when (e is OperationCanceledException)
+        {
+            throw new UserDataException("Operation Cancelled", e);
+        }
+    }
+
+    public async Task<User[]> GetAllUsers(CancellationToken token)
+    {
+        try
+        {
+            var result = await this._context.Users.AsNoTrackingWithIdentityResolution()
+                .ToArrayAsync(token);
+            
+            foreach (User user in result)
             {
-                return UserQueryResult.TooManyUsersWithUserName;
+                user.Roles ??= Array.Empty<Role>();
             }
 
-            var user = await result.AsNoTracking().FirstAsync(token);
-            
-            var (valid, upgrade) = this._passwordHasher.Check(user.Password, model.Password);
-
-            return (UserQueryResult.Ok, new UserValidationModel(valid, upgrade));
+            return result;
         }
         catch (Exception e) when (e is OperationCanceledException)
         {
-            return UserQueryResult.OperationCancelled;
-        }
-    }
-
-    public async Task<Status<UserQueryResult, UserReadModel[]>> GetUsersByRoles(UserQueryByRolesModel model, CancellationToken token)
-    {
-        try
-        {
-            var result = await this._context.Users.AsNoTracking()
-                .Where(x => model.Roles.Contains(x.Role))
-                .Select(x => new UserReadModel(x.Id, x.UserName, x.Role))
-                .ToArrayAsync(token);
-
-            return (UserQueryResult.Ok, result);
-        }
-        catch (Exception e) when (e is OperationCanceledException)
-        {
-            return UserQueryResult.OperationCancelled;
-        }
-    }
-
-    public async Task<Status<UserQueryResult, UserReadModel[]>> GetUsers(CancellationToken token)
-    {
-        try
-        {
-            var result = await this._context.Users.AsNoTracking()
-                .Select(x => new UserReadModel(x.Id, x.UserName, x.Role))
-                .ToArrayAsync(token);
-
-            return (UserQueryResult.Ok, result);
-        }
-        catch (Exception e) when (e is OperationCanceledException)
-        {
-            return UserQueryResult.OperationCancelled;
+            throw new UserDataException("Operation Cancelled", e);
         }
     }
 }

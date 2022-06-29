@@ -6,9 +6,13 @@ namespace Bierza.Data;
 public class User
 {
     public Guid Id { get; set; } = Guid.Empty;
-    public string UserName { get; set; } = null!;
+    public string DisplayName { get; set; } = null!;
+    public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;
-    public string Role { get; set; } = null!;
+    public bool ValidatedEmail { get; set; } = false;
+    public bool Activated { get; set; } = false;
+    public ICollection<Role>? Roles { get; set; } = null!;
+
 }
 
 public class UserEntityConfiguration : IEntityTypeConfiguration<User>
@@ -20,16 +24,27 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<User>
         builder.Property(b => b.Id)
             .HasDefaultValueSql("gen_random_uuid()");
 
-        builder.Property(b => b.UserName)
+        builder.Property(b => b.DisplayName)
             .IsRequired();
 
-        builder.HasIndex(user => user.UserName, "UserNameUnique")
+        builder.Property(b => b.Email)
+            .IsRequired();
+
+        builder.HasIndex(user => user.DisplayName, "DisplayNameUnique")
+            .IsUnique(true);
+        
+        builder.HasIndex(user => user.Email, "EmailUnique")
             .IsUnique(true);
 
         builder.Property(b => b.Password)
             .IsRequired();
 
-        builder.Property(b => b.Role)
-            .IsRequired();
+        builder.Property(b => b.ValidatedEmail)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(b => b.Activated)
+            .IsRequired()
+            .HasDefaultValue(false);
     }
 }

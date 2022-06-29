@@ -1,20 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Bierza.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bierza.Data;
 
 public class DataDbContext : DbContext
 {
-    public DataDbContext() 
+    private readonly string _connectionString;
+    public DataDbContext(ConnectionString connectionString)
     {
+        this._connectionString = connectionString.Connection;
     }
 
-    public DataDbContext(DbContextOptions<DataDbContext> options)
-        : base(options)
-    {
-    }
-
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseNpgsql(_connectionString, x => x.MigrationsAssembly("Bierza.Data"));
+    
     public DbSet<Hop> Hops => Set<Hop>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<Role> Roles => Set<Role>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
