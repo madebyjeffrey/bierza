@@ -8,7 +8,9 @@ using Bierza.Business.UserManagement.Models;
 using Bierza.Data.Users;
 using Bierza.Server.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -100,6 +102,15 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseStaticFiles(new StaticFileOptions()
+{
+    HttpsCompression = HttpsCompressionMode.Compress,
+    RequestPath = "/",
+    ServeUnknownFileTypes = false,
+    RedirectToAppendTrailingSlash = true,
+    FileProvider = app.Environment.WebRootFileProvider
+});
+
 app.Use(async (context, next) =>
 {
     IUserManager userManager = context.RequestServices.GetService<IUserManager>()!;
@@ -156,7 +167,6 @@ app.MapPost("/create-user", async (CreateUserRequestModel model, IUserManager us
     {
         return Results.Problem("Unable to create user");
     }
-
 });
 
 
