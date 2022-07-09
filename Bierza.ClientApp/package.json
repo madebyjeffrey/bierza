@@ -1,68 +1,71 @@
 {
-  "name": "bierza.client-app",
-  "version": "0.0.0",
-  "license": "MIT",
-  "scripts": {
-    "nx": "nx",
-    "start": "nx serve",
-    "build": "nx build",
-    "test": "nx test",
-    "postinstall": "ngcc --properties es2020 browser module main"
-  },
-  "private": true,
-  "devDependencies": {
-    "@angular-devkit/build-angular": "~14.0.0",
-    "@angular-eslint/eslint-plugin": "~14.0.0",
-    "@angular-eslint/eslint-plugin-template": "~14.0.0",
-    "@angular-eslint/template-parser": "~14.0.0",
-    "@angular/cli": "~14.0.0",
-    "@angular/compiler-cli": "~14.0.0",
-    "@angular/language-service": "~14.0.0",
-    "@nrwl/angular": "^14.4.1",
-    "@nrwl/cli": "14.4.1",
-    "@nrwl/cypress": "14.4.1",
-    "@nrwl/eslint-plugin-nx": "14.4.1",
-    "@nrwl/jest": "14.4.1",
-    "@nrwl/linter": "14.4.1",
-    "@nrwl/nx-cloud": "latest",
-    "@nrwl/workspace": "14.4.1",
-    "@types/jest": "27.4.1",
-    "@types/node": "16.11.7",
-    "@typescript-eslint/eslint-plugin": "^5.29.0",
-    "@typescript-eslint/parser": "^5.29.0",
-    "autoprefixer": "^10.4.0",
-    "cypress": "^9.1.0",
-    "eslint": "~8.15.0",
-    "eslint-config-prettier": "8.1.0",
-    "eslint-plugin-cypress": "^2.10.3",
-    "jest": "27.5.1",
-    "jest-preset-angular": "~11.1.2",
-    "nx": "14.4.1",
-    "postcss": "^8.4.5",
-    "prettier": "^2.6.2",
-    "tailwindcss": "^3.0.2",
-    "ts-jest": "27.1.4",
-    "ts-node": "~10.8.0",
-    "typescript": "~4.7.2"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "allowedVersions": {
-        "rxjs": "7"
-      }
+    "name": "bierza.client-app",
+    "version": "0.0.0",
+    "license": "MIT",
+    "scripts": {
+        "nx": "nx",
+        "start": "nx serve",
+        "build": "nx build",
+        "test": "nx test",
+        "postinstall": "ngcc --properties es2020 browser module main",
+        "generate-client": "nswag openapi2tsclient /Template:Angular /InjectionTokenType:InjectionToken /RxJsVersion:7.0 /UseSingletonProvider:true /HttpClass:HttpClient /DateTimeType:string /TypeScriptVersion:4.7 /GenerateOptionalParameters:true /MarkOptionalProperties:true /TypeStyle:interface /Input:https://localhost:7298/swagger/v1/swagger.json /Output:apps/bierza-angular/src/app/clients/bierza-client.ts /ClassName:BierzaClient"
+    },
+    "private": true,
+    "devDependencies": {
+        "@angular-devkit/build-angular": "~14.0.0",
+        "@angular-eslint/eslint-plugin": "~14.0.0",
+        "@angular-eslint/eslint-plugin-template": "~14.0.0",
+        "@angular-eslint/template-parser": "~14.0.0",
+        "@angular/cli": "~14.0.0",
+        "@angular/compiler-cli": "~14.0.0",
+        "@angular/language-service": "~14.0.0",
+        "@nrwl/angular": "^14.4.1",
+        "@nrwl/cli": "14.4.1",
+        "@nrwl/cypress": "14.4.1",
+        "@nrwl/eslint-plugin-nx": "14.4.1",
+        "@nrwl/jest": "14.4.1",
+        "@nrwl/linter": "14.4.1",
+        "@nrwl/nx-cloud": "latest",
+        "@nrwl/workspace": "14.4.1",
+        "@types/jest": "27.4.1",
+        "@types/node": "16.11.7",
+        "@typescript-eslint/eslint-plugin": "^5.29.0",
+        "@typescript-eslint/parser": "^5.29.0",
+        "autoprefixer": "^10.4.0",
+        "cypress": "^9.1.0",
+        "eslint": "~8.15.0",
+        "eslint-config-prettier": "8.1.0",
+        "eslint-plugin-cypress": "^2.10.3",
+        "jest": "27.5.1",
+        "jest-preset-angular": "~11.1.2",
+        "nx": "14.4.1",
+        "postcss": "^8.4.5",
+        "prettier": "^2.6.2",
+        "tailwindcss": "^3.0.2",
+        "ts-jest": "27.1.4",
+        "ts-node": "~10.8.0",
+        "typescript": "~4.7.2",
+        "nswag": "^13.16.1"
+    },
+    "pnpm": {
+        "peerDependencyRules": {
+            "allowedVersions": {
+                "rxjs": "7"
+            }
+        }
+    },
+    "dependencies": {
+        "@angular/animations": "~14.0.0",
+        "@angular/common": "~14.0.0",
+        "@angular/compiler": "~14.0.0",
+        "@angular/core": "~14.0.0",
+        "@angular/forms": "~14.0.0",
+        "@angular/platform-browser": "~14.0.0",
+        "@angular/platform-browser-dynamic": "~14.0.0",
+        "@angular/router": "~14.0.0",
+        "@ngrx/component": "^14.0.1",
+        "rxjs": "^7.4.0",
+        "tslib": "^2.0.0",
+        "zone.js": "~0.11.4"
     }
-  },
-  "dependencies": {
-    "@angular/animations": "~14.0.0",
-    "@angular/common": "~14.0.0",
-    "@angular/compiler": "~14.0.0",
-    "@angular/core": "~14.0.0",
-    "@angular/forms": "~14.0.0",
-    "@angular/platform-browser": "~14.0.0",
-    "@angular/platform-browser-dynamic": "~14.0.0",
-    "@angular/router": "~14.0.0",
-    "rxjs": "^7.4.0",
-    "tslib": "^2.0.0",
-    "zone.js": "~0.11.4"
-  }
 }

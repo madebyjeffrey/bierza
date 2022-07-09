@@ -9,6 +9,7 @@ using Bierza.Data.Users;
 using Bierza.Server.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -105,10 +106,31 @@ app.UseAuthorization();
 app.UseStaticFiles(new StaticFileOptions()
 {
     HttpsCompression = HttpsCompressionMode.Compress,
-    RequestPath = "/",
+    RequestPath = string.Empty,
     ServeUnknownFileTypes = false,
     RedirectToAppendTrailingSlash = true,
     FileProvider = app.Environment.WebRootFileProvider
+});
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseSpaStaticFiles(new StaticFileOptions()
+    {
+        HttpsCompression = HttpsCompressionMode.Compress,
+        RequestPath = string.Empty,
+        ServeUnknownFileTypes = false,
+        RedirectToAppendTrailingSlash = true,
+        FileProvider = new PhysicalFileProvider(Path.Join(app.Environment.ContentRootPath, "..", "Bierza.ClientApp", "dist", "apps", "bierza-angular"))
+    });
+}
+
+app.UseSpa(spa =>
+{
+    if (app.Environment.IsDevelopment()) 
+    {
+        spa.Options.SourcePath = "../Bierza.ClientApp";
+        spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+    }
 });
 
 app.Use(async (context, next) =>

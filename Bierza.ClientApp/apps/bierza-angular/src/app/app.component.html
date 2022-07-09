@@ -1,2 +1,7 @@
-<bierza-client-app-nx-welcome></bierza-client-app-nx-welcome>
+<ng-container *ngIf="userService.isLoggedIn() | ngrxPush; else notLoggedIn">
+    <a class="cursor-pointer" (click)="handleLogout()">Logout</a>
+</ng-container>
+<ng-template #notLoggedIn>
+    <a class="cursor-pointer" (click)="handleLogin()">Login</a>
+</ng-template>
 <router-outlet></router-outlet>
